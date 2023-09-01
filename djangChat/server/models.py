@@ -8,6 +8,10 @@ class Category(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField(blank=True, null=True)
 
+    def save(self, *args, **kwargs):
+        self.name = self.name.lower()
+        super(Category, self).save(*args, **kwargs)
+
     def __str__(self):
         return self.name
 
@@ -43,3 +47,4 @@ class Channel(models.Model):
 
     def __str__(self):
         return self.name
+ 
