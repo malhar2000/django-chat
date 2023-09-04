@@ -1,20 +1,17 @@
 {
-    "editor.defaultFormatter": null, // default formatter is disabled
-    "editor.formatOnSave": true, // enable format on save
-    "python.formatting.provider": "black", // use black as formatter
-    "python.formatting.blackArgs": [
-        "--line-length",
-        "119"
-    ], // pass arguments to black
-    "python.linting.enabled": true, // enable linting
-    "python.linting.lintOnSave": true, // d lint on save
-    "python.linting.flake8Enabled": true, // enable  flake8
-    "python.linting.flake8Args": [
-        "--max-line-length=119"
-    ], // pass arguments to flake8
-    "[python]": { // only for python files
-        "editor.codeActionsOnSave": {
-            "source.organizeImports": true // enable organize imports on save
-        }
-    }
+  "editor.defaultFormatter": null, // default formatter is disabled
+  "editor.formatOnSave": true, // enable format on save
+  "python.formatting.provider": "none", // use black as formatter
+  "python.formatting.blackArgs": ["--line-length", "119"], // pass arguments to black
+  "python.linting.enabled": true, // enable linting
+  "python.linting.lintOnSave": true, // d lint on save
+  "python.linting.flake8Enabled": true, // enable  flake8
+  "python.linting.flake8Args": ["--max-line-length=119"], // pass arguments to flake8
+  "[python]": {
+    // only for python files
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": true // enable organize imports on save
+    },
+    "editor.defaultFormatter": "ms-python.black-formatter"
+  }
 }
