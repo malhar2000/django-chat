@@ -5,7 +5,11 @@ import { useEffect } from "react";
 
 // import useAxiosInstance from "../../helper/useAxiosInstance";
 
-const SecondaryDraw = () => {
+type SecondaryDrawProps = {
+  children: React.ReactNode;
+};
+
+const SecondaryDraw = ({ children }: SecondaryDrawProps) => {
   // const axiosInstance = useAxiosInstance();
   const theme = useTheme();
 
@@ -30,11 +34,7 @@ const SecondaryDraw = () => {
         overflow: "auto",
       }}
     >
-      {[...Array(50)].map((_, i) => (
-        <Typography key={i} paragraph>
-          {i + 1}
-        </Typography>
-      ))}
+      {children}
     </Box>
   );
 };

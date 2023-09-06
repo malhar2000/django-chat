@@ -23,13 +23,11 @@ export const useCrud = <T>(initData: T[], apiUrl: String): IuseCrud<T> => {
       setData(data);
       setError(null);
       setLoading(false);
-      return data;
     } catch (error: any) {
       if (error.response && error.response.status === 400) {
         setError(new Error("400"));
       }
       setLoading(false);
-      throw error;
     }
   };
   return { data, fetchData, loading, error };

@@ -1,2 +1,3 @@
 export const BASE_URL = "http://localhost:8000";
-export const MEDIA_URL = "http://localhost:8000/media";
+// "http://localhost:8000/media" but media is already included in the url
+export const MEDIA_URL = "http://localhost:8000";
