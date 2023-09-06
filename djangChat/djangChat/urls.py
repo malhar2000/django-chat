@@ -22,10 +22,11 @@ from django.urls import path
 # spectacularSwaggerView --> generates swagger UI
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
-from server.views import ServerListViewSet
+from server.views import CategoryViewSet, ServerListViewSet
 
 router = DefaultRouter()
 router.register("api/server/select", ServerListViewSet, basename="server")
+router.register("api/server/category", CategoryViewSet, basename="category")
 
 
 urlpatterns = [

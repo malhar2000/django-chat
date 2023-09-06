@@ -1,16 +1,29 @@
+import drf_spectacular.utils as extend_schema
 from django.db.models import Count
 from rest_framework import viewsets
 from rest_framework.exceptions import AuthenticationFailed, ValidationError
+
+# from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from .models import Server
+from .models import Category, Server
 from .scheme import server_list_docs
-from .serializers import ServerSerializer
+from .serializers import CategorySerializer, ServerSerializer
+
+
+class CategoryViewSet(viewsets.ViewSet):
+    queryset = Category.objects.all()
+
+    # @extend_schema(responses=CategorySerializer)
+    def list(self, request):
+        serializer = CategorySerializer(self.queryset, many=True)
+        return Response(serializer.data)
 
 
 class ServerListViewSet(viewsets.ViewSet):
     queryset = Server.objects.all()
     serializer_class = ServerSerializer
+    # permission_classes = [IsAuthenticated]
 
     @server_list_docs
     def list(self, request):
@@ -28,7 +41,7 @@ class ServerListViewSet(viewsets.ViewSet):
             rest_framework.exceptions.ValidationError: If server ID is not valid or server does not exist.
 
         """
-        category = request.query_params.get("category").lower()
+        category = request.query_params.get("category")
         qty = request.query_params.get("qty")
         by_user = request.query_params.get("by_user") == "true"
         by_serverid = request.query_params.get("by_serverid")
@@ -38,7 +51,7 @@ class ServerListViewSet(viewsets.ViewSet):
             raise AuthenticationFailed(detail="You must be logged in to use this feature")
 
         if category is not None:
-            self.queryset = self.queryset.filter(category__name=category)
+            self.queryset = self.queryset.filter(category__name=category.lower())
 
         if by_user:
             user_id = request.user.id
