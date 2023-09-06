@@ -35,6 +35,11 @@ export const createMuiTheme = () => {
         fontWeight: 500,
         letterSpacing: 0.5,
       },
+      body2: {
+        fontWeight: 500,
+        letterSpacing: "-0.5px",
+        fontSize: "15px",
+      },
     },
     primaryAppBar: {
       height: 50,

@@ -64,19 +64,6 @@ class Server(models.Model):
     description = models.CharField(max_length=250, null=True)
     # one server can have many members, and a member can be in many servers
     member = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="server_member", blank=True)
-
-    def __str__(self):
-        return f"{self.name}-{self.id}"
-
-
-# each server has multiple channels
-class Channel(models.Model):
-    name = models.CharField(max_length=100)
-    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="channel_owner", on_delete=models.CASCADE)
-    topic = models.CharField(max_length=100, null=True)
-    # one to one with channel server (one channel can only be in one server) (one server can have many channels)
-    server = models.ForeignKey(Server, related_name="channel_server", on_delete=models.CASCADE)
-    member = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="channel_member", blank=True)
     banner = models.ImageField(
         upload_to=server_banner_path, blank=True, null=True, validators=[validate_image_file_exstension]
     )
@@ -93,18 +80,18 @@ class Channel(models.Model):
     def save(self, *args, **kwargs):
         # if the id already exists, then it is an update
         if self.id:
-            existing = get_object_or_404(Channel, id=self.id)
+            existing = get_object_or_404(Server, id=self.id)
             # if the icon is different, then delete the old icon
             if existing.icon and self.icon and existing.icon != self.icon:
                 existing.icon.delete(save=False)
             if existing.banner and self.banner and existing.banner != self.banner:
                 existing.banner.delete(save=False)
         self.name = self.name.lower()
-        super(Channel, self).save(*args, **kwargs)
+        super(Server, self).save(*args, **kwargs)
 
     # delete the icon when the category is deleted
     @receiver(models.signals.pre_delete, sender="server.Server")
-    def delete_category_icon(sender, instance, **kwargs):
+    def delete_server_icon(sender, instance, **kwargs):
         # loop through all the fields in the model
         for field in instance._meta.fields:
             # if the field is the icon field
@@ -115,6 +102,19 @@ class Channel(models.Model):
                     # delete the file
                     # save=False --> do not save the model because it is already saved after this
                     file.delete(save=False)
+
+    def __str__(self):
+        return f"{self.name}-{self.id}"
+
+
+# each server has multiple channels
+class Channel(models.Model):
+    name = models.CharField(max_length=100)
+    owner = models.ForeignKey(settings.AUTH_USER_MODEL, related_name="channel_owner", on_delete=models.CASCADE)
+    topic = models.CharField(max_length=100, null=True)
+    # one to one with channel server (one channel can only be in one server) (one server can have many channels)
+    server = models.ForeignKey(Server, related_name="channel_server", on_delete=models.CASCADE)
+    member = models.ManyToManyField(settings.AUTH_USER_MODEL, related_name="channel_member", blank=True)
 
     def __str__(self):
         return self.name

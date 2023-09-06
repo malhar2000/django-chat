@@ -7,7 +7,7 @@ import PopularChannel from "../components/PrimaryDraw/PopularChannel";
 import ExploreCategory from "../components/SecondaryDraw/ExploreCategories";
 import ExploreServer from "../components/Main/ExploreServer";
 
-const Home = () => {
+const Explore = () => {
   return (
     <Box sx={{ display: "flex" }}>
       <CssBaseline />
@@ -24,4 +24,4 @@ const Home = () => {
     </Box>
   );
 };
-export default Home;
+export default Explore;
