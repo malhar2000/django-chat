@@ -127,7 +127,7 @@ const ExploreServer = () => {
                         <ListItemAvatar sx={{ minWidth: "50px" }}>
                           <Avatar
                             alt={server.name}
-                            src={`${MEDIA_URL}/${server.icon}`}
+                            src={`${MEDIA_URL}${server.icon}`}
                           />
                         </ListItemAvatar>
                         <ListItemText

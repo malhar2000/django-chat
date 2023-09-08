@@ -73,7 +73,7 @@ const ExploreCategory = () => {
                 >
                   <ListItemAvatar sx={{ minWidth: "0px" }}>
                     <img
-                      src={`${MEDIA_URL}/${category.icon}`}
+                      src={`${MEDIA_URL}${category.icon}`}
                       alt="category icon"
                       style={{
                         width: "30px",
