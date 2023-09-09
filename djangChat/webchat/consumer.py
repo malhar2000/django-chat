@@ -8,12 +8,14 @@ class WebChatConsumer(JsonWebsocketConsumer):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         # should be dyanmic name but using static for now
-        self.room_name = "testroom"
+        self.channel_id = None
+        self.user = None
 
     def connect(self):
         self.accept()
+        self.channel_id = self.scope["url_route"]["kwargs"]["channelId"]
         async_to_sync(self.channel_layer.group_add)(
-            self.room_name,
+            self.channel_id,
             self.channel_name,
         )
 
@@ -26,7 +28,7 @@ class WebChatConsumer(JsonWebsocketConsumer):
             print("Received JSON data:", content)
             new_message = content.get("message", "")  # Get the "message" field from the JSON
             async_to_sync(self.channel_layer.group_send)(
-                self.room_name,
+                self.channel_id,
                 {
                     "type": "chat_message",
                     "new_message": new_message,

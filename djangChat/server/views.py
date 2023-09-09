@@ -47,8 +47,9 @@ class ServerListViewSet(viewsets.ViewSet):
         by_serverid = request.query_params.get("by_serverid")
         with_num_members = request.query_params.get("with_num_members") == "true"
 
-        if by_user or by_serverid and not request.user.is_authenticated:
-            raise AuthenticationFailed(detail="You must be logged in to use this feature")
+        # TODO: uncomment this when authentication is implemented
+        # if by_user or by_serverid and not request.user.is_authenticated:
+        #     raise AuthenticationFailed(detail="You must be logged in to use this feature")
 
         if category is not None:
             self.queryset = self.queryset.filter(category__name=category.lower())
