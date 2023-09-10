@@ -2,7 +2,25 @@ import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
 import { useState } from "react";
 import { useParams } from "react-router-dom";
 import { useCrud } from "../../hooks/useCrud";
-import { Box } from "@mui/system";
+import {
+  Avatar,
+  Box,
+  List,
+  ListItem,
+  ListItemAvatar,
+  ListItemText,
+  TextField,
+  Typography,
+  useTheme,
+} from "@mui/material";
+import Scroll from "./Scroll";
+import MessageInterfaceChannels from "./MessageInterfaceChannels";
+
+interface SendMessageData {
+  type: string;
+  message: string;
+  [key: string]: any;
+}
 
 interface Message {
   content: string;
@@ -11,7 +29,29 @@ interface Message {
   id: number;
 }
 
-const MessageInterface = () => {
+interface Server {
+  id: number;
+  name: string;
+  icon: string;
+  category: string;
+  server: string;
+  description: string;
+  channel_server: {
+    id: number;
+    name: string;
+    server: number;
+    topic: string;
+    owner: number;
+  }[];
+}
+
+interface ServerInfo {
+  data: Server[];
+}
+
+const MessageInterface = (props: ServerInfo) => {
+  const theme = useTheme();
+  const { data } = props;
   const [newMessage, setNewMessage] = useState<Message[]>([]);
   const [message, setMessage] = useState<string>("");
   const { serverId, channelId } = useParams<{
@@ -51,39 +91,175 @@ const MessageInterface = () => {
       const data = JSON.parse(msg.data);
       console.log(data);
       setNewMessage((prev) => [...prev, data.new_message]);
+      setMessage("");
     },
   });
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sendJsonMessage({
+        type: "message",
+        message,
+      } as SendMessageData);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    sendJsonMessage({
+      type: "message",
+      message,
+    } as SendMessageData);
+  };
+
+  function formatTimeStamp(timestamp: string): string {
+    const date = new Date(Date.parse(timestamp));
+    const formattedDate = `${
+      date.getMonth() + 1
+    }/${date.getDate()}/${date.getFullYear()}`;
+
+    const formattedTime = date.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: true,
+    });
+
+    return `${formattedDate} at ${formattedTime}`;
+  }
+
   return (
     <>
+      <MessageInterfaceChannels data={data} />
       {channelId === undefined ? (
-        <Box>Home</Box>
-      ) : (
-        <div>
-          {newMessage.map((msg, index) => (
-            <div key={index}>
-              <p>
-                {msg.sender}: {msg.content}
-              </p>
-            </div>
-          ))}
-          <form>
-            <label htmlFor="message">
-              Message:
-              <input
-                type="text"
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-              />
-            </label>
-          </form>
-          <button
-            onClick={() => {
-              sendJsonMessage({ type: "message", message });
+        <Box
+          sx={{
+            overflow: "hidden",
+            p: { xs: 0 },
+            height: `calc(80vh)`,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <Box
+            sx={{
+              textAlign: "center",
             }}
           >
-            Send
-          </button>
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                letterSpacing: "-0.5px",
+                px: 5,
+                maxWidth: "600px",
+              }}
+            >
+              {" "}
+              Welcome to {data?.[0]?.name ?? "Server"}
+            </Typography>
+            <Typography>
+              {data?.[0]?.description ?? "This is our home"}
+            </Typography>
+          </Box>
+        </Box>
+      ) : (
+        <div>
+          <Box
+            sx={{
+              overflow: "hidden",
+              p: 0,
+              height: `calc(100vh - 100px)`,
+            }}
+          >
+            <Scroll>
+              <List sx={{ width: "100%", bgcolor: "background.paper" }}>
+                {newMessage.map((msg: Message, index: number) => {
+                  return (
+                    <ListItem key={index} alignItems="flex-start">
+                      <ListItemAvatar>
+                        <Avatar alt="user image" />
+                      </ListItemAvatar>
+                      <ListItemText
+                        primaryTypographyProps={{
+                          fontSize: "12px",
+                          variant: "body2",
+                        }}
+                        primary={
+                          <>
+                            <Typography
+                              component="span"
+                              variant="body1"
+                              color="text.primary"
+                              sx={{ display: "inline", fontW: 600 }}
+                            >
+                              {msg.sender}
+                            </Typography>
+                            <Typography
+                              component="span"
+                              variant="caption"
+                              color="textSecondary"
+                            >
+                              {" at "}
+                              {formatTimeStamp(msg.timestamp)}
+                            </Typography>
+                          </>
+                        }
+                        secondary={
+                          <>
+                            <Typography
+                              variant="body1"
+                              style={{
+                                overflow: "visible",
+                                whiteSpace: "normal",
+                                textOverflow: "clip",
+                              }}
+                              sx={{
+                                display: "inline",
+                                lineHeight: 1.2,
+                                fontWeight: 400,
+                                letterSpacing: "-0.2px",
+                              }}
+                              component="span"
+                              color="text.primary"
+                            >
+                              {msg.content}
+                            </Typography>
+                          </>
+                        }
+                      />
+                    </ListItem>
+                  );
+                })}
+              </List>
+            </Scroll>
+          </Box>
+          <Box sx={{ position: "sticky", bottom: 0, width: "100%" }}>
+            <form
+              onSubmit={handleSubmit}
+              style={{
+                bottom: 0,
+                right: 0,
+                padding: "1rem",
+                backgroundColor: theme.palette.background.default,
+                zIndex: 1,
+              }}
+            >
+              <Box sx={{ display: "flex" }}>
+                <TextField
+                  fullWidth
+                  multiline
+                  value={message}
+                  minRows={1}
+                  maxRows={4}
+                  onKeyDown={handleKeyDown}
+                  onChange={(e) => setMessage(e.target.value)}
+                  sx={{ flexGrow: 1 }}
+                />
+              </Box>
+            </form>
+          </Box>
         </div>
       )}
     </>

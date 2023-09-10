@@ -59,7 +59,7 @@ const Server = () => {
         <ServerChannels data={data} serverId={serverId} />
       </SecondaryDraw>
       <Main>
-        <MessageInterface />
+        <MessageInterface data={data} />
       </Main>
     </Box>
   );
