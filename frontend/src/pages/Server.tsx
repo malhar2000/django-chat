@@ -1,49 +1,67 @@
-import { useWebSocket } from "react-use-websocket/dist/lib/use-websocket";
-import { useState } from "react";
-
-const url = "ws://localhost:8000/ws/test";
+import { Box, CssBaseline } from "@mui/material";
+import PrimaryAppBar from "./templates/PrimaryAppBar";
+import PrimaryDraw from "./templates/PrimaryDraw";
+import SecondaryDraw from "./templates/SecondaryDraw";
+import Main from "./templates/Main";
+import MessageInterface from "../components/Main/MessageInterface";
+import ServerChannels from "../components/SecondaryDraw/ServerChannels";
+import UserServers from "../components/PrimaryDraw/UserServers";
+import { useParams, useNavigate } from "react-router-dom";
+import { useCrud } from "../hooks/useCrud";
+import { useEffect } from "react";
 
 const Server = () => {
-  const [newMessage, setNewMessage] = useState<string[]>([]);
-  const [message, setMessage] = useState<string>("Empty");
+  const { serverId, channelId } = useParams<{
+    serverId: string;
+    channelId: string;
+  }>();
+  const navigate = useNavigate();
 
-  // name should be sendJsonMessage
-  const { sendJsonMessage } = useWebSocket(url, {
-    onOpen: () => console.log("opened"),
-    onClose: () => console.log("closed"),
-    onError: () => console.log("error"),
-    onMessage: (msg) => {
-      const data = JSON.parse(msg.data);
-      setNewMessage((prev) => [...prev, data.new_message]);
-    },
-  });
+  const { data, fetchData, error, loading } = useCrud(
+    [],
+    `/api/server/select/?by_serverid=${serverId}`
+  );
+
+  if (error != null && error.message === "400") {
+    navigate("/");
+    return null;
+  }
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const isChannel = (): boolean => {
+    if (!channelId) {
+      return true;
+    }
+    return data.some((server) =>
+      server.channel_server.some(
+        (channel) => channel.id === parseInt(channelId)
+      )
+    );
+  };
+
+  useEffect(() => {
+    if (!isChannel()) {
+      navigate(`/server/${serverId}`);
+    }
+  }, [isChannel, channelId]);
 
   return (
-    <>
-      {newMessage.map((msg, index) => (
-        <div key={index}>
-          <p>{msg}</p>
-        </div>
-      ))}
-      <form>
-        <label htmlFor="message">
-          Message:
-          <input
-            type="text"
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-          />
-        </label>
-      </form>
-      <button
-        onClick={() => {
-          sendJsonMessage({ type: "message", message });
-        }}
-      >
-        Send
-      </button>
-    </>
+    <Box sx={{ display: "flex" }}>
+      <CssBaseline />
+      <PrimaryAppBar />
+      <PrimaryDraw>
+        <UserServers open={false} data={data} />
+      </PrimaryDraw>
+      <SecondaryDraw>
+        <ServerChannels data={data} serverId={serverId} />
+      </SecondaryDraw>
+      <Main>
+        <MessageInterface data={data} />
+      </Main>
+    </Box>
   );
 };
-
 export default Server;

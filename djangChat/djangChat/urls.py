@@ -24,10 +24,12 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.routers import DefaultRouter
 from server.views import CategoryViewSet, ServerListViewSet
 from webchat.consumer import WebChatConsumer
+from webchat.views import MessageViewSet
 
 router = DefaultRouter()
 router.register("api/server/select", ServerListViewSet, basename="server")
 router.register("api/server/category", CategoryViewSet, basename="category")
+router.register("api/messages", MessageViewSet, basename="message")
 
 
 urlpatterns = [
@@ -36,7 +38,7 @@ urlpatterns = [
     path("api/schema/swagger-ui/", SpectacularSwaggerView.as_view(url_name="schema"), name="swagger-ui"),
 ] + router.urls
 
-websocket_urlpatterns = [path("ws/test", WebChatConsumer.as_asgi())]
+websocket_urlpatterns = [path("<str:serverId>/<str:channelId>", WebChatConsumer.as_asgi())]
 
 
 if settings.DEBUG:
