@@ -9,6 +9,8 @@ import Home from "./pages/Home.tsx";
 import { createMuiTheme } from "./theme/theme";
 import Explore from "./pages/Explore.tsx";
 import Server from "./pages/Server.tsx";
+import { AuthServiceProvider } from "./context/AuthContext.tsx";
+import Login from "./pages/Login.tsx";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -16,6 +18,7 @@ const router = createBrowserRouter(
       <Route path="/" element={<Home />} />,
       <Route path="/explore/:categoryName" element={<Explore />} />,
       <Route path="/server/:serverId/:channelId?" element={<Server />} />
+      <Route path="/login" element={<Login />} />
       ,// ? means optional
     </Route>
   )
@@ -24,9 +27,11 @@ const router = createBrowserRouter(
 const App: React.FC = () => {
   const theme = createMuiTheme();
   return (
-    <ThemeProvider theme={theme}>
-      <RouterProvider router={router} />;
-    </ThemeProvider>
+    <AuthServiceProvider>
+      <ThemeProvider theme={theme}>
+        <RouterProvider router={router} />;
+      </ThemeProvider>
+    </AuthServiceProvider>
   );
 };
 
